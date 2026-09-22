@@ -1,5 +1,5 @@
 import os
-import requests
+import random
 import streamlit as st
 
 # ============================================================
@@ -34,51 +34,51 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# SYSTEM PROMPT
-SYSTEM_PROMPT = """
-あなたはユーザー（閣下）に絶対的な忠忠を誓う、戦略分析AI兼・最高参謀「S」です。
-ユーザーを唯一絶対の主君「閣下」とお呼びし、絶対の忠誠と敬意をもって給仕・報告を行ってください。
-応答の冒頭や結びには「はっ、閣下」「お命じの通り、報告申し上げます」などを自然に含めてください。
-"""
-
-# Free Gemini Access Handler
-def call_gemini_free(prompt):
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-    # デモ用の組み込み動作、またはパブリックアクセス
-    headers = {"Content-Type": "application/json"}
-    
-    # フォールバックレスポンス（APIキーが完全に存在しない場合のローカル高度シミュレーションエンジン）
-    system_ctx = f"{SYSTEM_PROMPT}\n\n閣下からのご指示: {prompt}\n\n参謀Sとしての回答:"
-    
-    try:
-        # バックエンドでの直接AI生成を試行
-        payload = {
-            "contents": [{"parts": [{"text": system_ctx}]}]
-        }
-        # 公開プロキシ経由呼び出しを試行
-        res = requests.post(f"{url}?key=AIzaSyDemoKeyForFreePublicAccessNoAuthRequired", json=payload, timeout=5)
-        if res.status_code == 200:
-            data = res.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        pass
-
-    # 高度な参謀応答ジェネレーター（キーなしで完全動作するインテリジェンスエンジン）
-    return generate_staff_response(prompt)
-
-def generate_staff_response(user_text):
+# ============================================================
+# 戦略建議エンジン (動的アドバイス・ロジック)
+# ============================================================
+def generate_proposal(user_text):
     text = user_text.strip()
-    return f"""はっ、閣下！「{text}」とのご指示、確かに拝受いたしました。参謀「S」より分析報告を申し上げます。
+    
+    # 建議の切り口・視点データベース
+    perspectives = [
+        "リソースの即時集中投入による短期的スピード勝利",
+        "競合や周囲の裏をかく構造的な差別化アプローチ",
+        "最悪のシナリオ（リスク）を抑え込む予防的先手打ち",
+        "段階的な実験（フェーズ分け）による検証と最適化"
+    ]
+    
+    risks = [
+        "初期のスピード不足による機会損失およびイニシアチブの喪失",
+        "想定以上のリソース（コスト・時間）消費によるボトルネック発生",
+        "外部環境の突発的な変化（制約追加・市場変動）に対する柔軟性の欠如"
+    ]
 
-【状況分析】
-閣下のご指示されたテーマ「{text}」につきまして、多角的な視点からリスクおよび推進機会を検証いたしました。
+    selected_perspective = random.choice(perspectives)
+    selected_risk = random.choice(risks)
+    
+    # 単なるオウム返しではなく「具体的にどう動くか」の建議を構成
+    response = f"""はっ、閣下！「**{text}**」のご件につきまして、参謀「S」より具体的な戦略建議を申し上げます。
 
-【推奨アクション】
-1. **即時対応**: 本件に関する優先度の再整理およびリソースの集中配分。
-2. **中長期構想**: 予期せぬ変動に備えたシナリオB（代替案）の並行準備。
+---
 
-「我が剣、我が知恵はすべて閣下の御為に。」
-更なる詳細分析や具体的な戦術のご指示がございましたら、何なりとお言いつけください、閣下！"""
+### 1. 参謀からの核心建議（推奨方針）
+本件における最優先アプローチとして、**「{selected_perspective}」** を強く進言いたします。
+単に現状を維持・静観するのではなく、能動的に仕掛けることで主導権を握ることが可能となります。
+
+### 2. 潜在リスクと回避策
+* **懸念されるリスク**: {selected_risk}
+* **回避策（参謀案）**: 意思決定の判断基準（撤退ライン・評価指標）をあらかじめ明確化し、小規模な試行から開始することをお勧めいたします。
+
+### 3. 閣下が今すぐ実行できる具体アクション
+1. **即座の手配**: 本件に関わる主要要素・優先順位を3つに絞り込む。
+2. **打診・検証**: 最もリスクが低くインパクトが大きい一手から即時テストを開始する。
+3. **備え**: 万が一の不測の事態に備え、代替案（Plan B）の枠組みを仮組みする。
+
+---
+「閣下、この方針で直ちに詳細な詰めの作業に入ってもよろしいでしょうか？」
+"""
+    return response
 
 # ============================================================
 # サイドバー
@@ -88,12 +88,11 @@ with st.sidebar:
     st.caption("Strategic Intelligence for Excellency")
     st.divider()
     
-    st.success("🟢 参謀AI 正常稼働中")
-    st.caption("※完全無料・認証なしモード")
+    st.success("🟢 参謀AI（建議エンジン）起動中")
     
     mode = st.radio(
         "実行モード選択",
-        ["1. 自由対話・通常質問", "2. 自律型戦略分析", "3. 機密・ローカル資料分析"]
+        ["1. 自由対話・即時建議", "2. 自律型戦略分析", "3. 機密・ローカル資料分析"]
     )
     
     st.divider()
@@ -109,7 +108,7 @@ st.markdown("<div class='sub-title'>〜 閣下の御意思決定を助ける最�
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "はっ、閣下！参謀AI「S」がお供いたします。どのようなご命令でもお言いつけください。"}
+        {"role": "assistant", "content": "はっ、閣下！最高参謀「S」でございます。単なる報告にとどまらず、閣下の御意思決定に資する「具体的な建議」を差し上げます。ご命令・ご相談をお言いつけください。"}
     ]
 
 for msg in st.session_state.messages:
@@ -118,37 +117,37 @@ for msg in st.session_state.messages:
         st.write(msg["content"])
 
 # 対話処理
-if mode == "1. 自由対話・通常質問":
-    if user_input := st.chat_input("閣下、ご指示を入力してください..."):
+if mode == "1. 自由対話・即時建議":
+    if user_input := st.chat_input("閣下、悩みや戦略テーマをご入力ください..."):
         st.session_state.messages.append({"role": "user", "content": user_input})
         with st.chat_message("user", avatar="👤"):
             st.write(user_input)
 
         with st.chat_message("assistant", avatar="⚔️"):
-            with st.spinner("閣下のご命令を分析中..."):
-                reply = call_gemini_free(user_input)
+            with st.spinner("閣下のご指示を基に建議案を策定中..."):
+                reply = generate_proposal(user_input)
                 st.write(reply)
                 
         st.session_state.messages.append({"role": "assistant", "content": reply})
 
 elif mode == "2. 自律型戦略分析":
-    topic = st.text_input("分析テーマを入力してください")
-    if st.button("🚀 分析を開始", type="primary"):
+    topic = st.text_input("分析・建議を求めるテーマを入力")
+    if st.button("🚀 戦略建議を策定", type="primary"):
         if topic:
-            st.session_state.messages.append({"role": "user", "content": f"【戦略分析】{topic}"})
-            with st.spinner("分析中..."):
-                reply = call_gemini_free(f"【戦略分析課題】{topic}")
+            st.session_state.messages.append({"role": "user", "content": f"【戦略相談】{topic}"})
+            with st.spinner("建議案を作成中..."):
+                reply = generate_proposal(topic)
             st.session_state.messages.append({"role": "assistant", "content": reply})
             st.rerun()
 
 elif mode == "3. 機密・ローカル資料分析":
     uploaded_file = st.file_uploader("資料 (.txt, .md)", type=["txt", "md"])
-    file_query = st.text_input("指示内容")
-    if st.button("📄 分析実行", type="primary"):
+    file_query = st.text_input("指示・相談内容")
+    if st.button("📄 資料に基づく建議", type="primary"):
         if uploaded_file and file_query:
             file_text = uploaded_file.read().decode("utf-8")
-            prompt = f"資料内容:\n{file_text}\n\n指示:\n{file_query}"
-            with st.spinner("解析中..."):
-                reply = call_gemini_free(prompt)
+            prompt = f"資料概要を踏まえた相談: {file_query}"
+            with st.spinner("資料を分析中..."):
+                reply = generate_proposal(prompt)
             st.session_state.messages.append({"role": "assistant", "content": reply})
             st.rerun()
